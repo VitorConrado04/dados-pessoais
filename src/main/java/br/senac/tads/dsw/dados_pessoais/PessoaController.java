@@ -1,71 +1,70 @@
 package br.senac.tads.dsw.dados_pessoais;
 
-import java.net.URI;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.stereotype.Service;
 
-import jakarta.validation.Valid; // cite: 2
+import jakarta.annotation.PostConstruct;
 
-@RestController
-@RequestMapping("/pessoas")
+@Service
 public class PessoaController {
 
-	private final PessoaService pessoaService;
+	private AtomicInteger contador = new AtomicInteger(0);
 
-	public PessoaController(PessoaService pessoaService) {
-		this.pessoaService = pessoaService;
+	private Map<String, Pessoa> mapPessoas = new ConcurrentHashMap<>();
+
+	@PostConstruct
+	public void init() {
+		mapPessoas.put("fulano", new Pessoa(contador.incrementAndGet(),
+			"fulano", "Fulano da Silva",
+			"fulano@email.com", "(11) 99999-1234", LocalDate.parse("2000-10-20")));
+
+		mapPessoas.put("ciclano", new Pessoa(contador.incrementAndGet(),
+			"ciclano", "Ciclano de Souza",
+			"ciclano@email.com", "(11) 98888-5678", LocalDate.parse("1999-05-10")));
+
+		mapPessoas.put("beltrana", new Pessoa(contador.incrementAndGet(),
+			"beltrana", "Beltrana dos Santos",
+			"beltrana@email.com", "(11) 97777-9012", LocalDate.parse("2001-02-23")));
 	}
 
-	@GetMapping
 	public List<Pessoa> obterPessoas() {
-		return pessoaService.obterPessoas();
+		return new ArrayList<>(mapPessoas.values());
 	}
 
-	@GetMapping("/{username}")
-	public Pessoa obterPessoa(@PathVariable("username") String username) {
-		Optional<Pessoa> optPessoa = pessoaService.obterPessoa(username);
+	public Optional<Pessoa> obterPessoa(String username) {
+		return Optional.ofNullable(mapPessoas.get(username));
+	}
 
-		if (optPessoa.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+	public Pessoa incluirNovaPessoa(Pessoa pessoa) {
+		pessoa.setId(contador.incrementAndGet());
+		mapPessoas.put(pessoa.getUsername(), pessoa);
+		return pessoa;
+	}
+
+	public Pessoa alterarPessoa(String username, PessoaAlteracaoDto pessoaAlteracao) {
+		if (!mapPessoas.containsKey(username)) {
+			throw new NaoEncontradoException("Pessoa " + username + " não encontrada");
 		}
-
-		return optPessoa.get();
+		Pessoa pessoaOriginal = mapPessoas.get(username);
+		pessoaOriginal.setNome(pessoaAlteracao.getNome());
+		pessoaOriginal.setEmail(pessoaAlteracao.getEmail());
+		pessoaOriginal.setTelefone(pessoaAlteracao.getTelefone());
+		pessoaOriginal.setDataNascimento(pessoaAlteracao.getDataNascimento());
+		pessoaOriginal.setConhecimentos(pessoaAlteracao.getConhecimentos());
+		return pessoaOriginal;
 	}
 
-	@PostMapping
-	public ResponseEntity<?> incluirNovo(@RequestBody Pessoa pessoa) {
-		pessoaService.incluirNovaPessoa(pessoa);
-
-		URI location = ServletUriComponentsBuilder
-			.fromCurrentContextPath()
-			.path("/pessoas/{username}")
-			.buildAndExpand(pessoa.getUsername())
-			.toUri();
-
-		return ResponseEntity.created(location).build();
-	}
-
-	@PostMapping("/validacao") // Adicionado um caminho para evitar conflito com o primeiro @PostMapping
-	public ResponseEntity<?> incluirNovoComValidacao(@RequestBody @Valid Pessoa pessoa) { // cite: 2
-		// NOTAR O @Valid na linha acima // cite: 2
-
-		pessoaService.incluirNovaPessoa(pessoa); // cite: 2
-		URI location = ServletUriComponentsBuilder // cite: 2
-			.fromCurrentContextPath() // cite: 2
-			.path("/pessoas/{username}") // cite: 2
-			.buildAndExpand(pessoa.getUsername()) // cite: 2
-			.toUri(); // cite: 2
-		return ResponseEntity.created(location).build(); // cite: 2
+	public void removerPessoa(String username) {
+		if (!mapPessoas.containsKey(username)) {
+			throw new NaoEncontradoException("Pessoa " + username + " não encontrada");
+		}
+		mapPessoas.remove(username);
 	}
 }
