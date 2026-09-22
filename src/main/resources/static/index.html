@@ -21,7 +21,7 @@
 </section>
 <hr />
 <section>
-  <h2>Buscar pessoa pelo username</h2>
+  <h2>Buscar pessoaDto pelo username</h2>
   <button id="btnFulano">Carregar Fulano</button>
   <button id="btnCiclano">Carregar Ciclano</button>
   <button id="btnBeltrana">Carregar Beltrana</button>
@@ -59,7 +59,7 @@
   alert('Erro ao carregar lista: ' + err.message);
   }
   });
-  // Buscar e exibir dados de uma pessoa pelo username
+  // Buscar e exibir dados de uma pessoaDto pelo username
   async function getPessoa(username) {
   try {
   const httpResp = await fetch(`/pessoas/${username}`);
@@ -74,7 +74,7 @@
   document.getElementById('telefone').textContent = p.telefone;
   document.getElementById('dataNascimento').textContent = p.dataNascimento;
   } catch (err) {
-  alert('Erro ao buscar pessoa: ' + err.message);
+  alert('Erro ao buscar pessoaDto: ' + err.message);
   }
   }
   document.getElementById('btnFulano').addEventListener('click', () => getPessoa('fulano'));

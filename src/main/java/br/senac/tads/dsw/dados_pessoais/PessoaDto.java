@@ -11,7 +11,7 @@ import jakarta.validation.constraints.PastOrPresent; // cite: 1
 import jakarta.validation.constraints.Size; // cite: 1
 
 @SenhasIguais // será criada na seção 2.5 - adicione depois // cite: 1
-public class Pessoa {
+public class PessoaDto {
 
 	private Integer id;
 
@@ -44,11 +44,11 @@ public class Pessoa {
 	// ============================================================
 	// CONSTRUTORES
 	// ============================================================
-	public Pessoa() {
+	public PessoaDto() {
 	}
 
-	public Pessoa(Integer id, String username, String nome, String email,
-				  String telefone, LocalDate dataNascimento) {
+	public PessoaDto(Integer id, String username, String nome, String email,
+                     String telefone, LocalDate dataNascimento) {
 		this.id = id;
 		this.username = username;
 		this.nome = nome;
