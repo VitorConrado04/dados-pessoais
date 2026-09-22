@@ -3,26 +3,46 @@ package br.senac.tads.dsw.dados_pessoais;
 import java.time.LocalDate;
 import java.util.List;
 
+import br.senac.tads.dsw.dados_pessoais.validacao.SenhasIguais; // cite: 1
+import jakarta.validation.constraints.Email; // cite: 1
+import jakarta.validation.constraints.NotBlank; // cite: 1
+import jakarta.validation.constraints.NotNull; // cite: 1
+import jakarta.validation.constraints.PastOrPresent; // cite: 1
+import jakarta.validation.constraints.Size; // cite: 1
+
+@SenhasIguais // será criada na seção 2.5 - adicione depois // cite: 1
 public class Pessoa {
 
 	private Integer id;
+
+	@NotBlank(message = "O username é obrigatório") // cite: 1
+	@Size(max = 64) // cite: 1
 	private String username;
+
+	@NotBlank(message = "O nome completo é obrigatório") // cite: 1
+	@Size(max = 100) // cite: 1
 	private String nome;
+
+	@NotBlank // cite: 1
+	@Size(max = 100) // cite: 1
+	@Email // cite: 1
 	private String email;
+
+	@Size(max = 20) // cite: 1
 	private String telefone;
+
+	@NotNull // cite: 1
+	@PastOrPresent // cite: 1
 	private LocalDate dataNascimento;
+
 	private String senha;
+
 	private String senhaRepeticao;
+
 	private List<String> conhecimentos;
 
 	// ============================================================
-	// ATENÇÃO 1: gere os getters e setters de todos os campos acima.
-	// NO IDE: botão direito na classe -> Generate, Getter and Setter
-	// ============================================================
-
-	// ============================================================
-	// ATENÇÃO 2: NOTE QUE SÃO 2 CONSTRUTORES (O "padrão" sem argumentos
-	// e o que recebe todas as propriedades como argumentos)
+	// CONSTRUTORES
 	// ============================================================
 	public Pessoa() {
 	}
@@ -37,7 +57,9 @@ public class Pessoa {
 		this.dataNascimento = dataNascimento;
 	}
 
-
+	// ============================================================
+	// GETTERS E SETTERS
+	// ============================================================
 	public Integer getId() {
 		return id;
 	}
@@ -109,5 +131,4 @@ public class Pessoa {
 	public void setConhecimentos(List<String> conhecimentos) {
 		this.conhecimentos = conhecimentos;
 	}
-
 }
